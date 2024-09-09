@@ -4,3 +4,9 @@ El proyecto se centra en rediseñar código para que cumpla con los principios S
 Estudiantes: Isabella Mosquera, Alejandro Cárdenas
 
 Documento: [https://docs.google.com/document/d/1ExsgW086U2rEIbsRTQ7G897tShXWmgSw/edit](https://docs.google.com/document/d/1ExsgW086U2rEIbsRTQ7G897tShXWmgSw/edit?usp=sharing&ouid=110434905162326401740&rtpof=true&sd=true)
+
+
+Diagrama de Clases del proyecto:
+
+![Class Diagram1](https://github.com/user-attachments/assets/ba86fc0f-fc17-49e7-a7e2-d59f17ca62ac)
+
