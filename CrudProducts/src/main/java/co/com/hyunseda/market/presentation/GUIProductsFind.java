@@ -7,9 +7,14 @@ package co.com.hyunseda.market.presentation;
 
 import co.com.hyunseda.market.service.Product;
 import co.com.hyunseda.market.service.ProductService;
+import co.com.hyunseda.market.service.Category;
+import co.com.hyunseda.market.service.CategoryService;
 
+import java.util.Collections;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.DefaultComboBoxModel;
+
 
 /**
  *
@@ -17,35 +22,52 @@ import javax.swing.table.DefaultTableModel;
  */
 public class GUIProductsFind extends javax.swing.JDialog {
     private ProductService productService;
+    private CategoryService categoryService;
+
     /**
      * Creates new form GUIProductsFind
      */
-    public GUIProductsFind(java.awt.Frame parent, boolean modal,ProductService productService) {
+    public GUIProductsFind(java.awt.Frame parent, boolean modal, ProductService productService, CategoryService categoryService) {
         super(parent, modal);
         initComponents();
-        initializeTable();
         this.productService = productService;
-        setLocationRelativeTo(null); //centrar al ventana
+        this.categoryService = categoryService;
+        initializeTable();
+        loadCategories();
+        setLocationRelativeTo(null);
     }
     
     private void initializeTable() {
         tblProducts.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "Id", "Name", "Description"
+                    "Id", "Name", "Description", "Category"
                 }
         ));
     }
+
+    private void loadCategories() {
+        DefaultComboBoxModel<Category> model = new DefaultComboBoxModel<>();
+        model.addElement(new Category(0L, "Todas las categorías"));
+        for (Category category : categoryService.findAllCategories()) {
+            model.addElement(category);
+        }
+        cmbCategory.setModel(model);
+    }
+
     
-        private void fillTable(List<Product> listProducts) {
+    
+    private void fillTable(List<Product> listProducts) {
         initializeTable();
         DefaultTableModel model = (DefaultTableModel) tblProducts.getModel();
 
-        Object rowData[] = new Object[3];//No columnas
-        for (int i = 0; i < listProducts.size(); i++) {
-            rowData[0] = listProducts.get(i).getProductId();
-            rowData[1] = listProducts.get(i).getName();
-            rowData[2] = listProducts.get(i).getDescription();
+        for (Product product : listProducts) {
+            Object[] rowData = new Object[4];
+            rowData[0] = product.getProductId();
+            rowData[1] = product.getName();
+            rowData[2] = product.getDescription();
+            Category category = categoryService.findCategoryById(product.getCategoryId());
+            rowData[3] = (category != null) ? category.getName() : "N/A";
             
             model.addRow(rowData);
         }
@@ -72,6 +94,8 @@ public class GUIProductsFind extends javax.swing.JDialog {
         btnSearchAll = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         btnClose = new javax.swing.JButton();
+        cmbCategory = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Búsqueda de productos");
@@ -107,6 +131,10 @@ public class GUIProductsFind extends javax.swing.JDialog {
         rdoName.setText("Nombre del producto");
         pnlNorth.add(rdoName);
 
+        jLabel2.setText("Categoría:");
+        pnlNorth.add(jLabel2);
+        pnlNorth.add(cmbCategory);
+
         txtSearch.setPreferredSize(new java.awt.Dimension(62, 32));
         pnlNorth.add(txtSearch);
 
@@ -140,9 +168,40 @@ public class GUIProductsFind extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
 
-    private void btnSearchAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchAllActionPerformed
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {
+        String searchText = txtSearch.getText().trim();
+        Category selectedCategory = (Category) cmbCategory.getSelectedItem();
+
+        List<Product> products;
+
+        if (selectedCategory.getCategoryId() == 0) {
+            // Búsqueda en todas las categorías
+            if (rdoId.isSelected()) {
+                try {
+                    Long id = Long.parseLong(searchText);
+                    Product product = productService.findProductById(id);
+                    products = (product != null) ? Collections.singletonList(product) : Collections.emptyList();
+                } catch (NumberFormatException e) {
+                    Messages.showMessageDialog("ID inválido", "Error");
+                    return;
+                }
+            } else if (rdoName.isSelected()) {
+                products = productService.findProductsByName(searchText);
+            } else {
+                products = productService.findAllProducts();
+            }
+        } else {
+            // Búsqueda por categoría
+            products = productService.findProductsByCategory(selectedCategory.getCategoryId());
+        }
+
+        fillTable(products);
+    }
+
+
+    private void btnSearchAllActionPerformed(java.awt.event.ActionEvent evt) {
         fillTable(productService.findAllProducts());
-    }//GEN-LAST:event_btnSearchAllActionPerformed
+    }
 
  
 
@@ -160,5 +219,8 @@ public class GUIProductsFind extends javax.swing.JDialog {
     private javax.swing.JRadioButton rdoName;
     private javax.swing.JTable tblProducts;
     private javax.swing.JTextField txtSearch;
+
+    private javax.swing.JComboBox<Category> cmbCategory;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
 }

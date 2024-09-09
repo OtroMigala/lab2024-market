@@ -21,12 +21,26 @@ public class Product {
     
     private User user;
 
-    public Product(Long productId, String name, String description, double price) {
+    private Long categoryId;
+
+   
+
+    public Product(Long productId, String name, String description, double price, Long categoryId) {
         this.productId = productId;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.categoryId = categoryId;
     }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+    
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+    
 
     public Product() {
     }
