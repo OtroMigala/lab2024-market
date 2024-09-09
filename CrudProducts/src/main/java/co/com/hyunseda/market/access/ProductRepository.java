@@ -18,6 +18,7 @@ public class ProductRepository implements IProductRepository {
 
     public ProductRepository() {
         initDatabase();
+        updateDatabaseStructure();
     }
 
     @Override
@@ -26,10 +27,11 @@ public class ProductRepository implements IProductRepository {
             if (newProduct == null || newProduct.getName().isEmpty()) {
                 return false;
             }
-            String sql = "INSERT INTO products (name, description) VALUES (?, ?)";
+            String sql = "INSERT INTO products (name, description, categoryId) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, newProduct.getName());
             pstmt.setString(2, newProduct.getDescription());
+            pstmt.setLong(3, newProduct.getCategoryId());
             pstmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -46,11 +48,12 @@ public class ProductRepository implements IProductRepository {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                Product newProduct = new Product();
-                newProduct.setProductId(rs.getLong("productId"));
-                newProduct.setName(rs.getString("name"));
-                newProduct.setDescription(rs.getString("description"));
-                products.add(newProduct);
+                Product product = new Product();
+                product.setProductId(rs.getLong("productId"));
+                product.setName(rs.getString("name"));
+                product.setDescription(rs.getString("description"));
+                product.setCategoryId(rs.getLong("categoryId"));
+                products.add(product);
             }
         } catch (SQLException ex) {
             Logger.getLogger(ProductRepository.class.getName()).log(Level.SEVERE, null, ex);
@@ -167,9 +170,10 @@ public class ProductRepository implements IProductRepository {
         String sql = "CREATE TABLE IF NOT EXISTS products (\n"
                 + "	productId integer PRIMARY KEY AUTOINCREMENT,\n"
                 + "	name text NOT NULL,\n"
-                + "	description text NULL\n"
+                + "	description text NULL,\n"
+                + " categoryId integer\n"
                 + ");";
-
+    
         try {
             this.connect();
             Statement stmt = conn.createStatement();
@@ -197,6 +201,18 @@ public class ProductRepository implements IProductRepository {
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    public final void updateDatabaseStructure() {
+        String sql = "ALTER TABLE products ADD COLUMN categoryId integer;";
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.execute(sql);
+        } catch (SQLException ex) {
+            // Si la columna ya existe, SQLite lanzará una excepción
+            // Podemos ignorarla de forma segura
+            Logger.getLogger(ProductRepository.class.getName()).log(Level.INFO, "La columna categoryId ya existe o no se pudo crear", ex);
         }
     }
 }

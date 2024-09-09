@@ -34,12 +34,15 @@ public class GUICategories extends JDialog {
         setLayout(new BorderLayout(10, 10));
         
         // Panel para crear categoría
-        JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel createPanel = new JPanel(new BorderLayout(5, 0));
+        JPanel labelAndFieldPanel = new JPanel(new BorderLayout(5, 0));
+        labelAndFieldPanel.add(new JLabel("Nombre:"), BorderLayout.WEST);
         txtCategoryName = new JTextField(20);
+        labelAndFieldPanel.add(txtCategoryName, BorderLayout.CENTER);
+        createPanel.add(labelAndFieldPanel, BorderLayout.CENTER);
+        
         JButton btnAddCategory = new JButton("Añadir Categoría");
-        createPanel.add(new JLabel("Nombre:"));
-        createPanel.add(txtCategoryName);
-        createPanel.add(btnAddCategory);
+        createPanel.add(btnAddCategory, BorderLayout.EAST);
     
         // Lista de categorías
         listModel = new DefaultListModel<>();
@@ -55,9 +58,13 @@ public class GUICategories extends JDialog {
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClose);
     
+        // Panel principal
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.add(createPanel, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+    
         // Añadir componentes al frame
-        add(createPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     
         // Acción para añadir categoría

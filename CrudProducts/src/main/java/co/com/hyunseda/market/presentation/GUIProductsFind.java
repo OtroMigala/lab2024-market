@@ -12,8 +12,11 @@ import co.com.hyunseda.market.service.CategoryService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -140,6 +143,11 @@ public class GUIProductsFind extends javax.swing.JDialog {
 
         btnSearch.setText("Buscar");
         pnlNorth.add(btnSearch);
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         btnSearchAll.setText("Buscar Todos");
         btnSearchAll.addActionListener(new java.awt.event.ActionListener() {
@@ -168,35 +176,34 @@ public class GUIProductsFind extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
 
-    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {
-        String searchText = txtSearch.getText().trim();
-        Category selectedCategory = (Category) cmbCategory.getSelectedItem();
+private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {
+    String searchText = txtSearch.getText().trim();
+    Category selectedCategory = (Category) cmbCategory.getSelectedItem();
+    List<Product> products;
 
-        List<Product> products;
-
-        if (selectedCategory.getCategoryId() == 0) {
-            // Búsqueda en todas las categorías
-            if (rdoId.isSelected()) {
-                try {
-                    Long id = Long.parseLong(searchText);
-                    Product product = productService.findProductById(id);
-                    products = (product != null) ? Collections.singletonList(product) : Collections.emptyList();
-                } catch (NumberFormatException e) {
-                    Messages.showMessageDialog("ID inválido", "Error");
-                    return;
-                }
-            } else if (rdoName.isSelected()) {
-                products = productService.findProductsByName(searchText);
-            } else {
-                products = productService.findAllProducts();
-            }
-        } else {
-            // Búsqueda por categoría
-            products = productService.findProductsByCategory(selectedCategory.getCategoryId());
+    if (rdoId.isSelected()) {
+        try {
+            Long id = Long.parseLong(searchText);
+            Product product = productService.findProductById(id);
+            products = (product != null) ? Collections.singletonList(product) : Collections.emptyList();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID inválido", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-
-        fillTable(products);
+    } else if (rdoName.isSelected()) {
+        products = productService.findProductsByName(searchText);
+    } else {
+        products = productService.findAllProducts();
     }
+
+    if (selectedCategory != null && selectedCategory.getCategoryId() != 0) {
+        products = products.stream()
+                .filter(p -> p.getCategoryId().equals(selectedCategory.getCategoryId()))
+                .collect(Collectors.toList());
+    }
+
+    fillTable(products);
+}
 
 
     private void btnSearchAllActionPerformed(java.awt.event.ActionEvent evt) {

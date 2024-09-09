@@ -310,8 +310,9 @@ public class GUIProducts extends javax.swing.JFrame {
         String name = txtName.getText().trim();
         String description = txtDescription.getText().trim();
         Category selectedCategory = (Category) cmbCategory.getSelectedItem();
-
-        if (productService.saveProduct(name, description, selectedCategory.getCategoryId())) {
+        Long categoryId = selectedCategory != null ? selectedCategory.getCategoryId() : null;
+    
+        if (productService.saveProduct(name, description, categoryId)) {
             Messages.showMessageDialog("Se grabó con éxito", "Atención");
             cleanControls();
             stateInitial();
