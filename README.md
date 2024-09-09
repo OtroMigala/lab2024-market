@@ -1,2 +1,6 @@
 # lab2024-market
-El código de un pequeño programa que almacena productos y que viola varios de los principios SOLID para ser refactorizada como parte del Laboratorio de Ingeniería de Software II en la Universidad del Cauca
+El laboratorio se centró en refactorizar código para que cumpla con los principios SOLID, adicionalmente arreglando ligeros problemas internos dentro del código, refactorizando interfaces y elementos gráficos
+
+Estudiantes: Isabela Mosquera, Alejandro Cárdenas
+
+Documento: 
